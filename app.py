@@ -2,17 +2,17 @@ from flask_cors import CORS
 from flask import Flask, request, g
 
 # 사용자 정의 모듈/패키지
-from database.database import *
+from daos import *
+from services import *
 from decorators import *
-
-# Service, Data Access Object 통합 관리용 더미 클래스
-class Flask_App:
-    def __init__(self):
-        self.services = dict()
-        self.daos = dict()
+from database import db_session
+from config import JWT_SECRET_KEY
 
 app = Flask(__name__)
 CORS(app)
+
+services = dict()
+services['User'] = UserService(UserDao(db_session), JWT_SECRET_KEY)
 
 # 회원가입 처리 Endpoint
 @app.route("/registration", methods=["POST"])
