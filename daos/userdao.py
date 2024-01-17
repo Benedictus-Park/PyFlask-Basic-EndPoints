@@ -20,15 +20,17 @@ class UserDao:
         self.db_session.add(u)
         self.db_session.commit()
 
-    def get_user(self, username:str=None, email:str=None) -> User:
+    def get_user(self, uid:int=None, username:str=None, email:str=None) -> User:
         if username == None and email == None:
             raise InvalidateUserQuery()
+        elif uid != None:
+            return self.db_session.query(User).filter_by(uid=uid).one_or_none()
         elif username != None:
             return self.db_session.query(User).filter_by(username=username).one_or_none()
         elif email != None:
             return self.db_session.query(User).filter_by(email=email).one_or_none()
         
-    def update_user(self, uid:int, username:str=None, pwd:str=None, is_manager:bool=None) -> bool:
+    def update_user(self, uid:int, username:str=None, pwd:str=None, is_manager:bool=None) -> User:
         if username == None and pwd == None and is_manager == None:
             raise InvalidateUserQuery()
         else:
@@ -46,7 +48,10 @@ class UserDao:
             )
             self.db_session.commit()
 
-            return True
+            u.username = u.username if username == None else username,
+            u.is_manager = u.is_manager if is_manager == None else is_manager
+
+            return u
 
     def delete_user(self, uid:int=None, username:str=None, email:str=None):
         if uid == None and username == None and email == None:
