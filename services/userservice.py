@@ -3,9 +3,6 @@ import bcrypt
 from flask import jsonify, Response
 from datetime import datetime, timedelta
 
-# for Developement
-from ..daos.userdao import UserDao
-
 class UserService:
     def __init__(self, dao:UserDao, JWT_KEY:str):
         self.dao = dao
