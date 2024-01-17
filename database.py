@@ -11,7 +11,7 @@ Base = declarative_base()
 Base.query = db_session.query_property()
 
 def init_database():
-    from models import User
+    from models import User, UserLog
     Base.metadata.create_all(engine)
 
 if __name__ == "__main__":
