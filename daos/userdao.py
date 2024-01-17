@@ -32,7 +32,7 @@ class UserDao:
             return self.db_session.query(User).filter_by(email=email).one_or_none()
         
     def update_user(self, uid:int, username:str=None, pwd:str=None, is_manager:bool=None, punished:bool=None, block_until:int=None, expire_after:int=None) -> User:
-        if username == None and pwd == None and is_manager == None and punished == None and block_until == None and expire_after == None:
+        if None in (username, pwd, is_manager, punished, block_until, expire_after):
             raise InvalidateUserQuery()
         else:
             u = self.db_session.query(User).filter_by(uid=uid).one_or_none()
@@ -74,14 +74,6 @@ class UserDao:
 
             return u
         
-    def delete_user(self, uid:int=None, username:str=None, email:str=None):
-        if uid == None and username == None and email == None:
-            raise InvalidateUserQuery()
-        elif uid != None:
-            self.db_session.query(User).filter_by(uid=uid).delete()
-        elif username != None:
-            self.db_session.query(User).filter_by(username=username).delete()
-        elif email != None:
-            self.db_session.query(User).filter_by(email=email).delete()
-        
+    def delete_user(self, uid:int=None):
+        self.db_session.query(User).filter_by(uid=uid).delete()
         self.db_session.commit()

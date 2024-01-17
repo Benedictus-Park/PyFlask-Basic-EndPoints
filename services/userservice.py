@@ -24,30 +24,26 @@ class UserService:
         elif bcrypt.checkpw(password.encode('utf-8'), u.pwd.encode('utf-8')) == False:
             return Response(status=401)
         else:
-            rsp = Response(status=200)
-            rsp.set_cookie(key='authorization', value=self.token_generator(
-                u.uid,
-                u.username,
-                u.email,
-                u.is_manager
-            ))
+            userinfo_dict = {
+                'uid':u.uid,
+                'username':u.username,
+                'email':u.email,
+                'is_manager':u.is_manager,
+            }
+
+            rsp = jsonify(userinfo_dict)
+            rsp.set_cookie(key='authorization', value=self.token_generator(u))
 
             return rsp
         
-    ##### 로그인 필요 #####
-    def userinfo_update_service(self, uid:int, username:str=None, cur_password:str=None, new_password:str=None, is_manager:bool=None, force:bool=False, access_token:str=None) -> Response:    
+    def userinfo_update_service(self, uid:int, username:str=None, cur_password:str=None, new_password:str=None, is_manager:bool=None, force:bool=False) -> Response:    
         cur_userinfo = self.dao.get_user(uid=uid)
 
         if username != None:
             u = self.dao.get_user(username=username)
             if u != None:
                 rsp = Response("중복 유저명 존재(Confilict)", status=409)
-                rsp.set_cookie(key='authorization', value=self.token_generator(
-                    u.uid,
-                    u.username,
-                    u.email,
-                    u.is_manager
-                ))
+                rsp.set_cookie(key='authorization', value=self.token_generator(use_g=True))
                 return rsp
 
         if cur_userinfo == None:
@@ -58,33 +54,19 @@ class UserService:
         if new_password != None:
             new_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-
         u = self.dao.update_user(uid, username, new_password, is_manager)
 
         if u == None:
             return Response(status=400)
         else:
-            rsp = Response(status=200)
-            # 변경된 정보 반영하여 Token 재발급
-            if access_token == None:
-                rsp.set_cookie(key='authorization', value=self.token_generator(
-                    u.uid,
-                    u.username,
-                    u.email,
-                    u.is_manager
-                ))
-            else:
-                rsp.set_cookie(key='authorization', value=access_token)
+            userinfo_dict = {
+                'uid':u.uid,
+                'username':u.username,
+                'email':u.email,
+                'is_manager':u.is_manager,
+            }
+
+            rsp = jsonify(userinfo_dict)
+            rsp.set_cookie(key='authorization', value=self.token_generator(u))
 
             return rsp
-        
-    def punish_user_service(self, tgt_uid:int, block_until:int=None, access_token:str=None) -> Response:
-        if block_until == None:
-            self.dao.update_uset(uid=tgt_uid, punished=True)
-        else:
-            self.dao.update_uset(uid=tgt_uid, punished=True, block_until=block_until)
-
-        rsp = Response(status=200)
-        rsp.set_cookie(key="authorization", value=access_token)
-
-        return rsp

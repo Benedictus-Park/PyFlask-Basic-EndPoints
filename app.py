@@ -6,6 +6,7 @@ from flask import Flask, request, g, Response
 
 # 사용자 정의 모듈/패키지
 from daos import *
+from models import *
 from services import *
 from database import db_session
 from config import JWT_SECRET_KEY
@@ -39,21 +40,44 @@ def priv_required(f):
         return f(*args, **kwargs)
     return wrapper
 
-def jwt_generator(uid:int, username:str, email:str, is_manager:bool) -> str:
-    # 기본 Token 유효 시간: 1h
-    return jwt.encode({
-        'uid':uid,
-        'username':username,
-        'email':email,
-        'is_manager':is_manager,
-        'exp':datetime.utcnow() + timedelta(hours=1)
-    }, JWT_SECRET_KEY, algorithm='HS256')
+def jwt_generator(u:User=None, use_g:bool=False, uid:int=None, username:str=None, email:str=None, is_manager:bool=None) -> str:
+    payload = None
+    if u != None:
+        payload = {
+            'uid':u.uid,
+            'username':u.username,
+            'email':u.email,
+            'is_manager':u.is_manager,
+            'exp':datetime.utcnow() + timedelta(hours=1)
+        }
+    elif use_g:
+        payload = {
+            'uid':g.uid,
+            'username':g.username,
+            'email':g.email,
+            'is_manager':g.is_manager,
+            'exp':datetime.utcnow() + timedelta(hours=1)
+        }
+    else:
+        if None in (uid, username, email, is_manager):
+            raise Exception("This function require (uid, username, email, is_manager).")
+
+        payload = {
+            'uid':uid,
+            'username':username,
+            'email':email,
+            'is_manager':is_manager,
+            'exp':datetime.utcnow() + timedelta(hours=1)
+        }
+
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
 
 app = Flask(__name__)
 CORS(app)
 
 services = dict()
 services['User'] = UserService(UserDao(db_session), jwt_generator)
+services['Punish'] = PunishService(UserDao(db_session), jwt_generator)
 
 # 회원가입 처리 Endpoint
 @app.route("/registration", methods=["POST"])
@@ -98,8 +122,7 @@ def update_userinfo():
         "username":None,
         "cur_password":payload['cur_password'],
         "new_password":None,
-        "is_manager":None,
-        "force":True if g.is_manager else False
+        "is_manager":None
     }
 
     if 'username' in keys:
@@ -109,7 +132,7 @@ def update_userinfo():
 
     return services['User'].userinfo_update_service(**update_info)
 
-# 회원 권한 정보 업데이트
+# 회원 권한 업데이트
 @login_required
 @priv_required
 @app.route("/update-user-privilege", methods=["POST"])
@@ -128,12 +151,7 @@ def update_user_privilege():
         "is_manager":payload['is_manager']
     }
 
-    return services['User'].userinfo_update_service(**update_info, access_token=jwt_generator(
-        g.uid,
-        g.username,
-        g.email,
-        g.is_manager
-    ))
+    return services['User'].userinfo_update_service(**update_info, force=True)
 
 # 회원 제재
 @login_required
@@ -147,14 +165,14 @@ def punish_user():
         return Response(status=400)
     
     if 'block_until' in keys:
-        return services['User'].punish_user_service(tgt_uid=payload['tgt_uid'], access_token=jwt_generator(
+        return services['Punish'].punish_user_service(tgt_uid=payload['tgt_uid'], access_token=jwt_generator(
             g.uid,
             g.username,
             g.email,
             g.is_manager
         ))
     else:
-        return services['User'].punish_user_service(tgt_uid=payload['tgt_uid'], block_until=payload['block_until'], access_token=jwt_generator(
+        return services['Punish'].punish_user_service(tgt_uid=payload['tgt_uid'], block_until=payload['block_until'], access_token=jwt_generator(
             g.uid,
             g.username,
             g.email,
