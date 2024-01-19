@@ -8,6 +8,7 @@ from flask import Flask, request, g, Response
 from daos import *
 from models import *
 from services import *
+from db_robot import DB_Robot
 from database import db_session
 from config import JWT_SECRET_KEY
 
@@ -78,6 +79,8 @@ CORS(app)
 services = dict()
 services['User'] = UserService(UserDao(db_session), jwt_generator)
 services['Punish'] = PunishService(UserDao(db_session), jwt_generator)
+
+db_robot = None
 
 # 회원가입 처리 Endpoint
 @app.route("/registration", methods=["POST"])
