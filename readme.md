@@ -22,6 +22,5 @@ Decorator 패턴으로 정의해 두었음.
 **[환경]**
 - Python Flask
 - [Python] SQLAlchemy
-- [Python] bcrypt
-- [Python] pyjwt
 - [Optional] MySQL Version 8
+- 기타 Python Package는 requirments.txt 참조
