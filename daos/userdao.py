@@ -32,6 +32,16 @@ class UserDao:
         elif email != None:
             return self.db_session.query(User).filter_by(email=email).one_or_none()
         
+    def get_all_users_for_managing(self, only_manager:bool=False) -> tuple:
+        users = None
+        
+        if only_manager:
+            users = self.db_session.query(User.uid, User.username, User.email, User.created_at).filter_by(is_manager=True).all()
+        else:
+            users = self.db_session.query(User.uid, User.username, User.email, User.is_manager, User.created_at, User.punished, User.blocked_until).all()
+
+        return (users.count(), users)
+        
     def update_user(self, uid:int, username:str=None, pwd:str=None, is_manager:bool=None, punished:bool=None, block_until:int=None, expire_after:int=None) -> User:
         if None in (username, pwd, is_manager, punished, block_until, expire_after):
             raise InvalidateUserQuery()

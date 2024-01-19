@@ -132,6 +132,24 @@ def update_userinfo():
 
     return services['User'].userinfo_update_service(**update_info)
 
+# 회원 리스트 조회
+@login_required
+@priv_required
+@app.route("/get-users-metadata")
+def get_users_metadata():
+    payload = request.get_json()
+    keys = payload.keys()
+
+    if 'only_manager' in keys:
+        if keys['only_manager']:
+            return services['User'].get_users_metadata_service_for_managing(only_manager=True)
+        elif 'start' in keys and 'end' in keys:
+            return services['User'].get_users_metadata_service_for_managing(start=payload['start'], end=payload['end'])
+        else:
+            return Response(status=400)
+    else:
+        return Response(status=400)
+
 # 회원 권한 업데이트
 @login_required
 @priv_required

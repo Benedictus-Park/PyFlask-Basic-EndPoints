@@ -25,10 +25,10 @@ class UserService:
             return Response(status=401)
         else:
             userinfo_dict = {
-                'uid':u.uid,
-                'username':u.username,
-                'email':u.email,
-                'is_manager':u.is_manager,
+                'uid':int(u.uid),
+                'username':str(u.username),
+                'email':str(u.email),
+                'is_manager':bool(u.is_manager),
             }
 
             rsp = jsonify(userinfo_dict)
@@ -60,13 +60,50 @@ class UserService:
             return Response(status=400)
         else:
             userinfo_dict = {
-                'uid':u.uid,
-                'username':u.username,
-                'email':u.email,
-                'is_manager':u.is_manager,
+                'uid':int(u.uid),
+                'username':str(u.username),
+                'email':str(u.email),
+                'is_manager':bool(u.is_manager),
             }
 
             rsp = jsonify(userinfo_dict)
             rsp.set_cookie(key='authorization', value=self.token_generator(u))
 
             return rsp
+    
+    def get_users_metadata_service(self, only_manager:bool=False, start:int=None, end:int=None) -> Response:
+        count, users = self.dao.get_all_users_for_managing(only_manager)
+        data = {
+            "count":count,
+            "only_manager":only_manager,
+            "list":[]
+        }
+
+        if only_manager:
+            for u in users:
+                data['list'].append({
+                    "uid":int(u.uid),
+                    "username":str(u.username),
+                    "email":str(u.email),
+                    "created_at":str(u.created_at)
+                })
+        else:
+            if start != None and end != None:
+                users = users[start:end]
+
+            for u in users:
+                data['list'].append({
+                    "uid":int(u.uid),
+                    "username":str(u.username),
+                    "email":str(u.email),
+                    "is_manager":bool(u.is_manager),
+                    "created_at":str(u.created_at),
+                    "punished":bool(u.punished),
+                    "blocked_until":str(u.blocked_until)
+                })
+
+        rsp = jsonify(data)
+        rsp.set_cookie(key="authorization", vale=self.token_generator(use_g=True))
+
+        return rsp
+        
