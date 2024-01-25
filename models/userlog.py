@@ -37,7 +37,7 @@ MDTYPES = (
 
 class UserLog(Base):
     __tablename__ = 'user'
-    idx = Column(Integer, autoincrement=True, primary_key=True)
+    idx = Column(Integer, autoincrement=True, primary_key=True) # Has Default Value
     uid = Column(Integer, nullable=False)
     username = Column(VARCHAR(20), nullable=False)
     email = Column(VARCHAR(320), nullable=False)
