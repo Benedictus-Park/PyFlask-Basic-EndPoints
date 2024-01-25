@@ -1,7 +1,7 @@
+from ..app import now
 from ..models import *
 from sqlalchemy.orm.exc import *
 from sqlalchemy.orm import scoped_session
-from datetime import datetime, timedelta, timezone
 
 # 유저 검색에 필요한 Key가 누락된 경우 Raise
 class InvalidateUserQuery(Exception):
@@ -13,7 +13,6 @@ class InvalidateUserQuery(Exception):
 
 class UserDao:
     def __init__(self, db_session:scoped_session):
-        self.KST = timezone(timedelta(hours=9))
         self.db_session = db_session
 
     # Hashed Password가 Parameter로 주어져야 함에 유의.
@@ -63,17 +62,17 @@ class UserDao:
                 if block_until == None:
                     params = {
                         "punished":True,
-                        "blocked_until":datetime.now(tz=self.KST) + timedelta(days=14),
-                        "expire_at":datetime.now(tz=self.KST) + timedelta(days=7)
+                        "blocked_until":now(14),
+                        "expire_at":now(7)
                     }
                 else:
                     params = {
                         "punished":True,
-                        "blocked_until":datetime.now(tz=self.KST) + timedelta(days=block_until)
+                        "blocked_until":now(block_until)
                     }
             else:
                 params = {
-                    "expire_at":datetime.now(tz=self.KST) + timedelta(days=7)
+                    "expire_at":now(7)
                 }
                 
 

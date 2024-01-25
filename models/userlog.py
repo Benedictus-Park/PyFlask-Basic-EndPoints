@@ -24,7 +24,7 @@ class InvalidMdtypeError(Exception):
     def __str__(self):
         return self.msg
     
-MDTYPES = [
+MDTYPES = (
     'USER_CREATED',
     'USER_UPDATED',
     'USER_WITHDRAW',
@@ -33,7 +33,7 @@ MDTYPES = [
     'PUNISH_EXP',
     'PRIV_GRANT',
     'PRIV_REVOKE'
-]
+)
 
 class UserLog(Base):
     __tablename__ = 'user'
