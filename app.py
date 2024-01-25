@@ -86,7 +86,7 @@ services = dict()
 services['User'] = UserService(UserDao(db_session), jwt_generator)
 services['Punish'] = PunishService(UserDao(db_session), jwt_generator)
 
-db_robot = None
+db_robot = Robot(db_session)
 
 # 회원가입 처리 Endpoint
 @app.route("/registration", methods=["POST"])

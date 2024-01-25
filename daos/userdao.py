@@ -1,12 +1,11 @@
 from ..app import now
 from ..models import *
-from sqlalchemy.orm.exc import *
 from sqlalchemy.orm import scoped_session
 
 # 유저 검색에 필요한 Key가 누락된 경우 Raise
 class InvalidateUserQuery(Exception):
-    def __init__(self, msg:str):
-        self.msg = "This function require 1 parameter at least."
+    def __init__(self, msg:str=None):
+        self.msg = "This function require 1 parameter at least." if msg != None else msg
     
     def __str__(self):
         return self.msg

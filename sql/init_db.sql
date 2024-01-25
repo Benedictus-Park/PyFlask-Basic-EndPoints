@@ -25,7 +25,7 @@ CREATE TABLE userlog(
     modified_at DATETIME NOT NULL DEFAULT NOW(), /* DFT */
     block_until DATETIME,
     expire_log_at DATETIME NOT NULL DEFAULT DATE_ADD(NOW(), INTERVAL 3 MONTH), /* DFT */
-    mdtype VARCHAR(20) NOT NULL,
+    mdtype VARCHAR(15) NOT NULL,
     PRIMARY KEY(idx)
 );
 
