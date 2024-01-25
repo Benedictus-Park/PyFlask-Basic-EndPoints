@@ -83,8 +83,8 @@ app = Flask(__name__)
 CORS(app)
 
 services = dict()
-services['User'] = UserService(UserDao(db_session), jwt_generator)
-services['Punish'] = PunishService(UserDao(db_session), jwt_generator)
+services['User'] = UserService(UserDao(db_session), UserLogger(db_session), jwt_generator)
+services['Punish'] = PunishService(UserDao(db_session), PunishLogger(db_session), jwt_generator)
 
 db_robot = Robot(db_session)
 

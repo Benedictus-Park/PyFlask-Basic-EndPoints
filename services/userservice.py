@@ -1,9 +1,12 @@
 import bcrypt
+from ..app import jwt_generator
+from ..daos import UserLogger
 from flask import jsonify, Response
 
 class UserService:
-    def __init__(self, dao, token_generator):
+    def __init__(self, dao, userlogger:UserLogger, token_generator:jwt_generator):
         self.dao = dao
+        self.logger = userlogger
         self.token_generator = token_generator
 
     def registration_service(self, username:str, email:str, password:str) -> Response:
