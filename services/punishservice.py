@@ -1,11 +1,11 @@
 from ..app import jwt_generator
-from ..daos import PunishLogger
+from ..daos import Logger
 from flask import jsonify, Response, g
 
 class PunishService:
-    def __init__(self, userdao, punishlogger:PunishLogger, token_generator:jwt_generator):
+    def __init__(self, userdao, logger:Logger, token_generator:jwt_generator):
         self.userdao = userdao
-        self.logger = punishlogger
+        self.logger = logger
         self.token_generator = token_generator
 
     def punish_user_service(self, tgt_uid:int, block_until:int=None) -> Response:
@@ -16,5 +16,7 @@ class PunishService:
 
         rsp = Response(status=200)
         rsp.set_cookie(key="authorization", value=self.token_generator(use_g=True))
+
+        self.logger.punish_user(g.uid, tgt_uid)
 
         return rsp

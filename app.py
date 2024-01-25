@@ -82,11 +82,14 @@ def jwt_generator(u:User=None, use_g:bool=False, uid:int=None, username:str=None
 app = Flask(__name__)
 CORS(app)
 
+logger = Logger(db_session)
+
 services = dict()
-services['User'] = UserService(UserDao(db_session), UserLogger(db_session), jwt_generator)
-services['Punish'] = PunishService(UserDao(db_session), PunishLogger(db_session), jwt_generator)
+services['User'] = UserService(UserDao(db_session), logger, jwt_generator)
+services['Punish'] = PunishService(UserDao(db_session), logger, jwt_generator)
 
 db_robot = Robot(db_session)
+db_robot.start()
 
 # 회원가입 처리 Endpoint
 @app.route("/registration", methods=["POST"])

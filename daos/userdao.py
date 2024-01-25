@@ -15,10 +15,11 @@ class UserDao:
         self.db_session = db_session
 
     # Hashed Password가 Parameter로 주어져야 함에 유의.
-    def insert_user(self, username:str, email:str, password:str):
+    def insert_user(self, username:str, email:str, password:str) -> User:
         u = User(username, email, password)
         self.db_session.add(u)
         self.db_session.commit()
+        return u
 
     def get_user(self, uid:int=None, username:str=None, email:str=None) -> User:
         if username == None and email == None:

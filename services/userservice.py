@@ -1,12 +1,12 @@
 import bcrypt
 from ..app import jwt_generator
-from ..daos import UserLogger
+from ..daos import Logger
 from flask import jsonify, Response
 
 class UserService:
-    def __init__(self, dao, userlogger:UserLogger, token_generator:jwt_generator):
+    def __init__(self, dao, logger:Logger, token_generator:jwt_generator):
         self.dao = dao
-        self.logger = userlogger
+        self.logger = logger
         self.token_generator = token_generator
 
     def registration_service(self, username:str, email:str, password:str) -> Response:
@@ -16,7 +16,10 @@ class UserService:
             return Response(response="이미 사용중인 이메일입니다.(Confilict)", status=409)
         else:
             password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            self.dao.insert_user(username, email, password)
+            u = self.dao.insert_user(username, email, password)
+
+            self.logger.user_created(u)
+
             return Response(status=200)
         
     def authentication_service(self, email:str, password:str) -> Response:
@@ -71,6 +74,8 @@ class UserService:
 
             rsp = jsonify(userinfo_dict)
             rsp.set_cookie(key='authorization', value=self.token_generator(u))
+
+            self.logger.user_updated(u)
 
             return rsp
     
