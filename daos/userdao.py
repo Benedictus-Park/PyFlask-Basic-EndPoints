@@ -61,12 +61,14 @@ class UserDao:
             elif punished:
                 if block_until == None:
                     params = {
+                        "is_manager":False,
                         "punished":True,
                         "blocked_until":now(14),
                         "expire_at":now(7)
                     }
                 else:
                     params = {
+                        "is_manager":False,
                         "punished":True,
                         "blocked_until":now(block_until)
                     }

@@ -114,4 +114,9 @@ class UserService:
         rsp.set_cookie(key="authorization", vale=self.token_generator(use_g=True))
 
         return rsp
-        
+    
+    def grant_priv_service(self, tgt_uid:int) -> Response:
+        u = self.dao.update_user(uid=tgt_uid, is_manager=True)
+        self.logger.user_priv_granted(u)
+
+        ########
