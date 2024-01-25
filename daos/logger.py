@@ -11,10 +11,10 @@ class Logger:
     def user_withdraw(self, u:User): #
         self.user_log(u, 2)
 
-    def user_cancel_exp(self, u:User): #
+    def user_cancel_exp(self, u:User):
         self.user_log(u, 3)
 
-    def user_punish_block(self, u:User): #
+    def user_punish_block(self, u:User):
         self.user_log(u, 4)
 
     def user_punish_exp(self, u:User): #
