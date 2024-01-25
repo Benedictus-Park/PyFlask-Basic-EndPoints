@@ -71,7 +71,7 @@ class UserService:
 
             return rsp
     
-    def get_users_metadata_service(self, only_manager:bool=False, start:int=None, end:int=None) -> Response:
+    def get_users_metadata_service_for_managing(self, only_manager:bool=False, start:int=None, end:int=None) -> Response:
         count, users = self.dao.get_all_users_for_managing(only_manager)
         data = {
             "count":count,

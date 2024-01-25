@@ -1,16 +1,22 @@
 import jwt
 from functools import wraps
 from flask_cors import CORS
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import Flask, request, g, Response
 
 # 사용자 정의 모듈/패키지
 from daos import *
 from models import *
 from services import *
-from db_robot import DB_Robot
 from database import db_session
 from config import JWT_SECRET_KEY
+
+def now(after_days:int = None) -> datetime:
+    KST = timezone(timedelta(hours=9))
+    if after_days == None:
+        return datetime.now(tz=KST)
+    else:
+        return datetime.now(tz=KST) + timedelta(days=after_days)
 
 def login_required(f):
     @wraps(f)
