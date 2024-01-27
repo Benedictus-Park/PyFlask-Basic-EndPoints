@@ -1,6 +1,6 @@
-from user import User
-from ..app import now
-from ..database import Base
+from .user import User
+from .tools import now
+from .database import Base
 from sqlalchemy import Column, Integer, VARCHAR, BOOLEAN, DateTime
     
 MDTYPES = (

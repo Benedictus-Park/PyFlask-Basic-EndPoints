@@ -1,22 +1,12 @@
-import jwt
+import os, sys, jwt
+from daos import *
+from services import *
 from functools import wraps
 from flask_cors import CORS
-from flask import Flask, request, g, Response
-from datetime import datetime, timedelta, timezone
-
-# 사용자 정의 모듈/패키지
-from daos import *
-from models import *
-from services import *
-from database import db_session
 from config import JWT_SECRET_KEY
-
-def now(after_days:int = None) -> datetime:
-    KST = timezone(timedelta(hours=9))
-    if after_days == None:
-        return datetime.now(tz=KST)
-    else:
-        return datetime.now(tz=KST) + timedelta(days=after_days)
+from datetime import datetime, timedelta
+from daos.models.database import db_session
+from flask import Flask, request, g, Response
 
 def login_required(f):
     @wraps(f)
@@ -79,6 +69,8 @@ def jwt_generator(u:User=None, use_g:bool=False, uid:int=None, username:str=None
 
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
 
+sys.path.insert(1, os.path.abspath('.'))
+
 app = Flask(__name__)
 CORS(app)
 
@@ -88,7 +80,7 @@ services = dict()
 services['User'] = UserService(UserDao(db_session), logger, jwt_generator)
 services['Punish'] = PunishService(UserDao(db_session), logger, jwt_generator)
 
-db_robot = Robot(db_session)
+db_robot = Robot(logger, db_session)
 db_robot.start()
 
 # 회원가입 처리 Endpoint
@@ -226,3 +218,6 @@ def punish_user():
             g.email,
             g.is_manager
         ))
+    
+if __name__ == '__main__':
+    app.run(host="127.0.0.1")

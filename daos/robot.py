@@ -1,8 +1,8 @@
 import time
-from ..app import now
-from ..models import *
+from models import *
 from logger import Logger
 from threading import Thread
+from .models.tools import now
 from sqlalchemy.orm import scoped_session
 
 def safe_join(tr:Thread):

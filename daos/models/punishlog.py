@@ -1,5 +1,5 @@
-from ..app import now
-from ..database import Base
+from .tools import now
+from .database import Base
 from sqlalchemy import Column, Integer, VARCHAR, BOOLEAN, DateTime
 
 TGT_TYPES = (

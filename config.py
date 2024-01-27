@@ -9,4 +9,4 @@ DB_NAME = "flask_app"
 JWT_SECRET_KEY = "[YOUR KEY HERE]"
 
 # SQLAlchemy Connection String(DB URL)
-DB_URL = "mysql+pymysql://{ID}:{PWD}@{HOST}:{PORT}/{DB_NAME}"
+DB_URL = f"mysql+pymysql://{ID}:{PWD}@{HOST}:{PORT}/{DB_NAME}"
