@@ -18,13 +18,14 @@ MDTYPES = (
 )
 
 class UserLog(Base):
+    __tablename__ = "userlog"
     idx = Column(Integer, autoincrement=True, primary_key=True) # Has Default Value
     uid = Column(Integer, nullable=False)
     username = Column(VARCHAR(20), nullable=False)
     email = Column(VARCHAR(320), nullable=False)
     is_manager = Column(BOOLEAN, nullable=False)
     modified_at = Column(DateTime, nullable=False) # Has Default Value
-    blocked_until = Column(DateTime, nullable=True)
+    block_until = Column(DateTime, nullable=True)
     expire_log_at = Column(DateTime, nullable=False) # Has Default Value
     mdtype = Column(VARCHAR(15), nullable=False)
     ipv4_addr = Column(VARCHAR(15), nullable=False)
@@ -36,14 +37,14 @@ class UserLog(Base):
             self.username = u.username
             self.email = u.email
             self.is_manager = u.is_manager
-            self.blocked_until = u.blocked_until
+            self.block_until = u.block_until
             self.mdtype = MDTYPES[mdtype]
         else:
             self.uid = -1
             self.username = "UNKNOWN"
             self.email = "UNKNOWN"
             self.is_manager = False
-            self.blocked_until = None
+            self.block_until = None
             self.mdtype = MDTYPES[10]
 
         self.modified_at = now()

@@ -49,7 +49,7 @@ services['User'] = UserService(UserDao(db_session), logger, jwt_generator)
 services['Punish'] = PunishService(UserDao(db_session), logger, jwt_generator)
 
 db_robot = Robot(logger, db_session)
-#db_robot.start()
+db_robot.start()
 
 # 회원가입 처리 Endpoint
 @app.route("/registration", methods=["POST"])

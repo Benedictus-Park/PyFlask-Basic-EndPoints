@@ -46,7 +46,7 @@ class UserDao:
         if only_manager:
             users = self.db_session.query(User.uid, User.username, User.email, User.created_at).filter('is_manager' == True and 'expire_at' == None).all()
         else:
-            users = self.db_session.query(User.uid, User.username, User.email, User.is_manager, User.created_at, User.punished, User.blocked_until).filter_by(expire_at=None).all()
+            users = self.db_session.query(User.uid, User.username, User.email, User.is_manager, User.created_at, User.punished, User.block_until).filter_by(expire_at=None).all()
 
         return (users.count(), users)
         
@@ -69,14 +69,14 @@ class UserDao:
                 params = {
                     "is_manager":False,
                     "punished":True,
-                    "blocked_until":now(expire_after * 2),
+                    "block_until":now(expire_after * 2),
                     "expire_at":now(expire_after)
                 }
             else:
                 params = {
                     "is_manager":False,
                     "punished":True,
-                    "blocked_until":now(block_until)
+                    "block_until":now(block_until)
                 }
         else:
             params = {
