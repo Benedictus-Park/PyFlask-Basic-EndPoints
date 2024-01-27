@@ -162,26 +162,31 @@ def get_users_metadata():
     else:
         return Response(status=400)
 
-# 회원 권한 업데이트
+# 회원 권한 부여
 @login_required
 @priv_required
-@app.route("/update-user-privilege", methods=["POST"])
-def update_user_privilege():
+@app.route("/grant-privilege", methods=["POST"])
+def grant_privilege():
     payload = request.get_json()
     keys = payload.keys()
 
-    if 'is_manager' not in keys or 'tgt_uid' not in keys:
+    if 'tgt_uid' not in keys:
         return Response(status=400)
     
-    update_info = {
-        "uid":payload['tgt_uid'],
-        "username":None,
-        "cur_password":None,
-        "new_password":None,
-        "is_manager":payload['is_manager']
-    }
+    return services['User'].grant_priv_service(payload['tgt_uid'])
 
-    return services['User'].userinfo_update_service(**update_info, force=True)
+# 회원 권한 회수
+@login_required
+@priv_required
+@app.route("/revoke-privilege", methods=["POST"])
+def grant_privilege():
+    payload = request.get_json()
+    keys = payload.keys()
+
+    if 'tgt_uid' not in keys:
+        return Response(status=400)
+    
+    return services['User'].revoke_priv_service(payload['tgt_uid'])
 
 # 회원 제재
 @login_required

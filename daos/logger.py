@@ -20,17 +20,17 @@ class Logger:
     def user_punish_exp(self, u:User):
         self.user_log(u, 5)
 
-    def user_priv_granted(self, u:User): #
-        self.user_log(u, 6)
+    def user_priv_granted(self, u:User, _by:int=None):
+        self.user_log(u, 6, _by)
 
-    def user_priv_revoked(self, u:User): #
-        self.user_log(u, 7)
+    def user_priv_revoked(self, u:User, _by:int=None):
+        self.user_log(u, 7, _by)
 
-    def user_complete_exp(self, u:User): #
-        self.user_log(u, 8)
+    def user_complete_exp(self, u:User, _by:int=None): #
+        self.user_log(u, 8, _by)
 
-    def user_log(self, u:User, mdtype:int):
-        userlog = UserLog(u, mdtype)
+    def user_log(self, u:User, mdtype:int, _by:int=None):
+        userlog = UserLog(u, mdtype, _by)
         self.db_session.add(userlog)
         self.db_session.commit()
 

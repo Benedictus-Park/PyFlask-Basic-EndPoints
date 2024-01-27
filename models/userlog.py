@@ -26,11 +26,15 @@ class UserLog(Base):
     blocked_until = Column(DateTime, nullable=True)
     expire_log_at = Column(DateTime, nullable=False, default=now(90)) # Has Default Value
     mdtype = Column(VARCHAR(15), nullable=False)
+    _by = Column(Integer, nullable=True)
 
-    def __init__(self, u:User, mdtype:int):
+    def __init__(self, u:User, mdtype:int, _by:int=None):
         self.uid = u.uid
         self.username = u.username
         self.email = u.email
         self.is_manager = u.is_manager
         self.blocked_until = u.blocked_until
         self.mdtype = MDTYPES[mdtype]
+
+        if _by != None:
+            self._by = _by

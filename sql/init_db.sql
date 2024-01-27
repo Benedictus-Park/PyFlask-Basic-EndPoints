@@ -28,6 +28,7 @@ CREATE TABLE userlog(
     block_until DATETIME,
     expire_log_at DATETIME NOT NULL DEFAULT DATE_ADD(NOW(), INTERVAL 3 MONTH),
     mdtype VARCHAR(20) NOT NULL,
+    _by INT,
     PRIMARY KEY(idx)
 );
 

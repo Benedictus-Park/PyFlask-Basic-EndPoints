@@ -1,7 +1,7 @@
 import bcrypt
 from ..app import jwt_generator
 from ..daos import UserDao, Logger
-from flask import jsonify, Response
+from flask import jsonify, Response, g
 
 class UserService:
     def __init__(self, dao:UserDao, logger:Logger, token_generator:jwt_generator):
@@ -111,12 +111,24 @@ class UserService:
                 })
 
         rsp = jsonify(data)
-        rsp.set_cookie(key="authorization", vale=self.token_generator(use_g=True))
+        rsp.set_cookie(key="authorization", value=self.token_generator(use_g=True))
 
         return rsp
     
     def grant_priv_service(self, tgt_uid:int) -> Response:
         u = self.dao.update_user(uid=tgt_uid, is_manager=True)
-        self.logger.user_priv_granted(u)
+        self.logger.user_priv_granted(u, g.uid)
 
-        ########
+        rsp = Response(status=200)
+        rsp.set_cookie(key="authorization", value=self.token_generator(use_g=True))
+        
+        return rsp
+    
+    def revoke_priv_service(self, tgt_uid:int) -> Response:
+        u = self.dao.update_user(uid=tgt_uid, is_manager=False)
+        self.logger.user_priv_revoked(u, g.uid)
+
+        rsp = Response(status=200)
+        rsp.set_cookie(key="authorization", value=self.token_generator(use_g=True))
+        
+        return rsp
