@@ -1,8 +1,8 @@
 import jwt
 from functools import wraps
 from flask_cors import CORS
-from datetime import datetime, timedelta, timezone
 from flask import Flask, request, g, Response
+from datetime import datetime, timedelta, timezone
 
 # 사용자 정의 모듈/패키지
 from daos import *
@@ -108,6 +108,7 @@ def registration():
 # 로그인 처리 Endpoint
 @app.route("/authenticate", methods=["POST"])
 def authenticate():
+    g.ipv4_addr = request.remote_addr
     payload = request.get_json()
     keys = payload.keys()
 
@@ -123,6 +124,7 @@ def authenticate():
 @login_required
 @app.route("/update-userinfo", methods=["POST"])
 def update_userinfo():
+    g.ipv4_addr = request.remote_addr
     payload = request.get_json()
 
     if 'cur_password' not in keys:
@@ -144,11 +146,19 @@ def update_userinfo():
 
     return services['User'].userinfo_update_service(**update_info)
 
+# 회원 탈퇴
+@login_required
+@app.route("/withdraw", methods=["POST"])
+def withdraw():
+    g.ipv4_addr = request.remote_addr
+    return services['User'].withdraw_service()
+
 # 회원 리스트 조회
 @login_required
 @priv_required
 @app.route("/get-users-metadata")
 def get_users_metadata():
+    g.ipv4_addr = request.remote_addr
     payload = request.get_json()
     keys = payload.keys()
 
@@ -167,6 +177,7 @@ def get_users_metadata():
 @priv_required
 @app.route("/grant-privilege", methods=["POST"])
 def grant_privilege():
+    g.ipv4_addr = request.remote_addr
     payload = request.get_json()
     keys = payload.keys()
 
@@ -180,6 +191,7 @@ def grant_privilege():
 @priv_required
 @app.route("/revoke-privilege", methods=["POST"])
 def grant_privilege():
+    g.ipv4_addr = request.remote_addr
     payload = request.get_json()
     keys = payload.keys()
 
@@ -193,6 +205,7 @@ def grant_privilege():
 @priv_required
 @app.route("/punish-user", methods=["POST"])
 def punish_user():
+    g.ipv4_addr = request.remote_addr
     payload = request.get_json()
     keys = payload.keys()
 

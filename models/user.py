@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, VARCHAR, BOOLEAN, DateTime
 
 class User(Base):
     __tablename__ = 'user'
-    uid = Column(Integer, autoincrement=True, primary_key=True) # Has Default Value
+    uid = Column(Integer, autoincrement=True, primary_key=True) # Has Default Valueeeeee
     username = Column(VARCHAR(20), nullable=False, unique=True)
     email = Column(VARCHAR(320), nullable=False, unique=True)
     pwd = Column(VARCHAR(60), nullable=False)

@@ -1,3 +1,4 @@
+from flask import g
 from ..models import *
 from sqlalchemy.orm import scoped_session
 
@@ -8,10 +9,10 @@ class Logger:
     def user_updated(self, u:User):
         self.user_log(u, 1)
 
-    def user_withdraw(self, u:User): #
+    def user_withdraw(self, u:User):
         self.user_log(u, 2)
 
-    def user_cancel_exp(self, u:User): #
+    def user_cancel_exp(self, u:User):
         self.user_log(u, 3)
 
     def user_punish_block(self, u:User):
@@ -21,16 +22,22 @@ class Logger:
         self.user_log(u, 5)
 
     def user_priv_granted(self, u:User, _by:int=None):
-        self.user_log(u, 6, _by)
+        self.user_log(u, 6, "By manager: " + str(_by))
 
     def user_priv_revoked(self, u:User, _by:int=None):
-        self.user_log(u, 7, _by)
+        self.user_log(u, 7, "By manager: " + str(_by))
 
-    def user_complete_exp(self, u:User, _by:int=None): #
-        self.user_log(u, 8, _by)
+    def user_complete_exp(self, u:User): #
+        self.user_log(u, 8)
 
-    def user_log(self, u:User, mdtype:int, _by:int=None):
-        userlog = UserLog(u, mdtype, _by)
+    def authenticate(self, u:User=None, success:bool=None):
+        if u == None:
+            self.user_log(User())
+        else:
+            self.user_log(u, 9 if success else 10)
+
+    def user_log(self, u:User, mdtype:int, etcs:str=None):
+        userlog = UserLog(u, mdtype, g.ipv4_addr, etcs)
         self.db_session.add(userlog)
         self.db_session.commit()
 
@@ -47,6 +54,6 @@ class Logger:
         self.punish_log(src_uid, tgt_id, 2)
 
     def punish_log(self, src_uid:int, tgt_id:int, mdtype:int):
-        punishlog = PunishLog(src_uid, tgt_id, mdtype)
+        punishlog = PunishLog(src_uid, tgt_id, mdtype, g.ipv4_addr)
         self.db_session.add(punishlog)
         self.db_session.commit()

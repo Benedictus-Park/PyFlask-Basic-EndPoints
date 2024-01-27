@@ -28,7 +28,8 @@ CREATE TABLE userlog(
     block_until DATETIME,
     expire_log_at DATETIME NOT NULL DEFAULT DATE_ADD(NOW(), INTERVAL 3 MONTH),
     mdtype VARCHAR(20) NOT NULL,
-    _by INT,
+    etcs VARCHAR(30),
+    ipv4_addr VARCHAR(15) NOT NULL,
     PRIMARY KEY(idx)
 );
 
@@ -39,5 +40,6 @@ CREATE TABLE punishlog(
     punish_tgt_type VARCHAR(20) NOT NULL,
     logged_at DATETIME NOT NULL DEFAULT NOW(),
     expire_log_at DATETIME NOT NULL DEAFULT DATE_ADD(NOW(), INTERVAL 3 MONTH),
+    ipv4_addr VARCHAR(15) NOT NULL,
     PRIMARY KEY(idx)
 );

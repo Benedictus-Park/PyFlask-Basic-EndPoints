@@ -19,15 +19,16 @@ class UserService:
             u = self.dao.insert_user(username, email, password)
 
             self.logger.user_created(u)
-
             return Response(status=200)
         
     def authentication_service(self, email:str, password:str) -> Response:
-        u = self.dao.get_user(email=email)
+        u, cancel_exp = self.dao.get_user(email=email, login=True)
 
         if u == None:
+            self.logger.authenticate()
             return Response(status=401)
         elif bcrypt.checkpw(password.encode('utf-8'), u.pwd.encode('utf-8')) == False:
+            self.logger.authenticate(u, success=False)
             return Response(status=401)
         else:
             userinfo_dict = {
@@ -40,6 +41,9 @@ class UserService:
             rsp = jsonify(userinfo_dict)
             rsp.set_cookie(key='authorization', value=self.token_generator(u))
 
+            if cancel_exp:
+                self.logger.user_cancel_exp(u)
+            self.logger.authenticate(u, True)
             return rsp
         
     def userinfo_update_service(self, uid:int, username:str=None, cur_password:str=None, new_password:str=None, is_manager:bool=None, force:bool=False) -> Response:    
@@ -76,7 +80,6 @@ class UserService:
             rsp.set_cookie(key='authorization', value=self.token_generator(u))
 
             self.logger.user_updated(u)
-
             return rsp
     
     def get_users_metadata_service_for_managing(self, only_manager:bool=False, start:int=None, end:int=None) -> Response:
@@ -115,20 +118,25 @@ class UserService:
 
         return rsp
     
+    def withdraw_service(self, uid:int) -> Response:
+        u = self.dao.update_user(uid, punished=False)
+        self.logger.user_withdraw(u)
+        return Response(status=200)
+    
     def grant_priv_service(self, tgt_uid:int) -> Response:
         u = self.dao.update_user(uid=tgt_uid, is_manager=True)
-        self.logger.user_priv_granted(u, g.uid)
 
         rsp = Response(status=200)
         rsp.set_cookie(key="authorization", value=self.token_generator(use_g=True))
         
+        self.logger.user_priv_granted(u, g.uid)
         return rsp
     
     def revoke_priv_service(self, tgt_uid:int) -> Response:
         u = self.dao.update_user(uid=tgt_uid, is_manager=False)
-        self.logger.user_priv_revoked(u, g.uid)
 
         rsp = Response(status=200)
         rsp.set_cookie(key="authorization", value=self.token_generator(use_g=True))
         
+        self.logger.user_priv_revoked(u, g.uid)
         return rsp

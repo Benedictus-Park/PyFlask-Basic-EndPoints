@@ -12,7 +12,9 @@ MDTYPES = (
     'PUNISH_EXP',
     'PRIV_GRANT',
     'PRIV_REVOKE',
-    "COMPLETE_EXP"
+    "COMPLETE_EXP",
+    "LOGIN_OK",
+    "LOGIN_FAIL"
 )
 
 class UserLog(Base):
@@ -26,15 +28,25 @@ class UserLog(Base):
     blocked_until = Column(DateTime, nullable=True)
     expire_log_at = Column(DateTime, nullable=False, default=now(90)) # Has Default Value
     mdtype = Column(VARCHAR(15), nullable=False)
-    _by = Column(Integer, nullable=True)
+    ipv4_addr = Column(VARCHAR(15), nullable=False)
+    etcs = Column(VARCHAR(20), nullable=True)
 
-    def __init__(self, u:User, mdtype:int, _by:int=None):
-        self.uid = u.uid
-        self.username = u.username
-        self.email = u.email
-        self.is_manager = u.is_manager
-        self.blocked_until = u.blocked_until
-        self.mdtype = MDTYPES[mdtype]
+    def __init__(self, u:User=None, mdtype:int=None, ipv4_addr:str=None, etcs:str=None):
+        if u != None:
+            self.uid = u.uid
+            self.username = u.username
+            self.email = u.email
+            self.is_manager = u.is_manager
+            self.blocked_until = u.blocked_until
+            self.mdtype = MDTYPES[mdtype]
+        else:
+            self.uid = -1
+            self.username = "UNKNOWN"
+            self.email = "UNKNOWN"
+            self.is_manager = False
+            self.blocked_until = None
+            self.mdtype = MDTYPES[10]
 
-        if _by != None:
-            self._by = _by
+        self.ipv4_addr = ipv4_addr
+        self.etcs = etcs
+        
