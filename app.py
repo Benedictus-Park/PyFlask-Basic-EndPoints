@@ -4,9 +4,9 @@ from services import *
 from functools import wraps
 from flask_cors import CORS
 from config import JWT_SECRET_KEY
-from datetime import datetime, timedelta
-from daos.models.database import db_session
+from services.tools import jwt_generator
 from flask import Flask, request, g, Response
+from daos.engine.database import init_database, db_session
 
 def login_required(f):
     @wraps(f)
@@ -37,38 +37,6 @@ def priv_required(f):
         return f(*args, **kwargs)
     return wrapper
 
-def jwt_generator(u:User=None, use_g:bool=False, uid:int=None, username:str=None, email:str=None, is_manager:bool=None) -> str:
-    payload = None
-    if u != None:
-        payload = {
-            'uid':u.uid,
-            'username':u.username,
-            'email':u.email,
-            'is_manager':u.is_manager,
-            'exp':datetime.utcnow() + timedelta(hours=1)
-        }
-    elif use_g:
-        payload = {
-            'uid':g.uid,
-            'username':g.username,
-            'email':g.email,
-            'is_manager':g.is_manager,
-            'exp':datetime.utcnow() + timedelta(hours=1)
-        }
-    else:
-        if None in (uid, username, email, is_manager):
-            raise Exception("This function require (uid, username, email, is_manager).")
-
-        payload = {
-            'uid':uid,
-            'username':username,
-            'email':email,
-            'is_manager':is_manager,
-            'exp':datetime.utcnow() + timedelta(hours=1)
-        }
-
-    return jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
-
 sys.path.insert(1, os.path.abspath('.'))
 
 app = Flask(__name__)
@@ -81,7 +49,7 @@ services['User'] = UserService(UserDao(db_session), logger, jwt_generator)
 services['Punish'] = PunishService(UserDao(db_session), logger, jwt_generator)
 
 db_robot = Robot(logger, db_session)
-db_robot.start()
+#db_robot.start()
 
 # 회원가입 처리 Endpoint
 @app.route("/registration", methods=["POST"])
@@ -182,7 +150,7 @@ def grant_privilege():
 @login_required
 @priv_required
 @app.route("/revoke-privilege", methods=["POST"])
-def grant_privilege():
+def revoke_privilege():
     g.ipv4_addr = request.remote_addr
     payload = request.get_json()
     keys = payload.keys()
@@ -220,4 +188,5 @@ def punish_user():
         ))
     
 if __name__ == '__main__':
+    init_database()
     app.run(host="127.0.0.1")

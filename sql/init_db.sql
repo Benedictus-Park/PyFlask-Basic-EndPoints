@@ -2,8 +2,6 @@ CREATE DATABASE flask_app;
 
 USE flask_app;
 
-/* Python으로 정의된 Model에 비해 공간을 넉넉히 잡음. */
-
 CREATE TABLE user(
     uid INT AUTO_INCREMENT,
     username VARCHAR(20) NOT NULL,
@@ -24,12 +22,12 @@ CREATE TABLE userlog(
     username VARCHAR(20) NOT NULL,
     email VARCHAR(320) NOT NULL,
     is_manager BOOLEAN NOT NULL,
-    modified_at DATETIME NOT NULL DEFAULT NOW(),
+    modified_at DATETIME NOT NULL,
     block_until DATETIME,
-    expire_log_at DATETIME NOT NULL DEFAULT DATE_ADD(NOW(), INTERVAL 3 MONTH),
-    mdtype VARCHAR(20) NOT NULL,
-    etcs VARCHAR(30),
+    expire_log_at DATETIME NOT NULL,
+    mdtype VARCHAR(15) NOT NULL,
     ipv4_addr VARCHAR(15) NOT NULL,
+    etcs VARCHAR(20),
     PRIMARY KEY(idx)
 );
 
@@ -37,9 +35,9 @@ CREATE TABLE punishlog(
     idx INT AUTO_INCREMENT,
     src_uid INT NOT NULL,
     tgt_id INT NOT NULL,
-    punish_tgt_type VARCHAR(20) NOT NULL,
-    logged_at DATETIME NOT NULL DEFAULT NOW(),
-    expire_log_at DATETIME NOT NULL DEAFULT DATE_ADD(NOW(), INTERVAL 3 MONTH),
+    punish_tgt_type VARCHAR(7) NOT NULL,
+    logged_at DATETIME NOT NULL,
+    expire_log_at DATETIME NOT NULL,
     ipv4_addr VARCHAR(15) NOT NULL,
     PRIMARY KEY(idx)
 );

@@ -1,17 +1,22 @@
 import time
-from models import *
-from logger import Logger
+from .engine import *
+from .logger import Logger
 from threading import Thread
-from .models.tools import now
+from .engine.tools import now
 from sqlalchemy.orm import scoped_session
 
 def safe_join(tr:Thread):
     tr.join()
 
 def _manage_user(logger:Logger, db_session:scoped_session):
-    users = db_session.query(User).filter('expire_at' < now() and 'expire_at' != None).all()
-    logger.user_complete_exp(tuple(users))
-    db_session.query(User).filter('expire_at' < now() and 'expire_at' != None).delete()
+    delete_tgt = []
+    users = db_session.query(User).filter('expire_at' != None).all()
+
+    for user in users:
+        if user.expire_at < now():
+            delete_tgt.append(user)
+            db_session.query(User).filter(uid=user.uid).delete()
+    logger.user_complete_exp(tuple(delete_tgt))
 
 def _manage_userlog(db_session:scoped_session):
     db_session.query(UserLog).filter('expire_log_at' < now()).delete()

@@ -1,5 +1,5 @@
 from flask import g
-from ..models import *
+from .engine import *
 from sqlalchemy.orm import scoped_session
 
 class Logger:

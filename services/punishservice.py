@@ -1,9 +1,8 @@
-from ..app import jwt_generator
-from ..daos import UserDao, Logger
+from .tools import jwt_generator
 from flask import jsonify, Response, g
 
 class PunishService:
-    def __init__(self, userdao:UserDao, logger:Logger, token_generator:jwt_generator):
+    def __init__(self, userdao, logger, token_generator:jwt_generator):
         self.userdao = userdao
         self.logger = logger
         self.token_generator = token_generator
