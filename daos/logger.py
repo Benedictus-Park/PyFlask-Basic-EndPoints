@@ -3,6 +3,9 @@ from ..models import *
 from sqlalchemy.orm import scoped_session
 
 class Logger:
+    def __init__(self, db_session:scoped_session):
+        self.db_session = db_session
+
     def user_created(self, u:User):
         self.user_log(u, 0)
 
@@ -27,8 +30,12 @@ class Logger:
     def user_priv_revoked(self, u:User, _by:int=None):
         self.user_log(u, 7, "By manager: " + str(_by))
 
-    def user_complete_exp(self, u:User): #
-        self.user_log(u, 8)
+    def user_complete_exp(self, users:tuple):
+        userlogs = []
+        for user in users:
+            userlogs.append(UserLog(user, 8, 'By Robot', 'By Robot'))
+        self.db_session.add_all(userlogs)
+        self.db_session.commit()
 
     def authenticate(self, u:User=None, success:bool=None):
         if u == None:
@@ -40,9 +47,6 @@ class Logger:
         userlog = UserLog(u, mdtype, g.ipv4_addr, etcs)
         self.db_session.add(userlog)
         self.db_session.commit()
-
-    def __init__(self, db_session:scoped_session):
-        self.db_session = db_session
 
     def punish_user(self, src_uid:int, tgt_id:int):
         self.punish_log(src_uid, tgt_id, 0)
