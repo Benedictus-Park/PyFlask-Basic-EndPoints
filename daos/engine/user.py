@@ -23,3 +23,10 @@ class User(Base):
 
     def __repr__(self):
         return f"<DB Table User ({self.uid}, {self.username})>"
+    
+    def get_dummy():
+        u = User("UNKNOWN", "UNKNOWN", "")
+        u.uid = 0
+        u.created_at = now()
+
+        return u

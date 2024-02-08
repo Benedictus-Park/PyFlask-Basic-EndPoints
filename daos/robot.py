@@ -13,7 +13,10 @@ def _manage_user(logger:Logger, db_session:scoped_session):
     users = db_session.query(User).filter('expire_at' != None).all()
 
     for user in users:
-        if user.expire_at < now():
+        if user.expire_at == None:
+            continue
+
+        if user.expire_at < now().replace(tzinfo=None):
             delete_tgt.append(user)
             db_session.query(User).filter(uid=user.uid).delete()
     logger.user_complete_exp(tuple(delete_tgt))
@@ -22,14 +25,14 @@ def _manage_userlog(db_session:scoped_session):
     logs = db_session.query(UserLog).all()
 
     for log in logs:
-        if log.expire_log_at < now():
+        if log.expire_log_at < now().replace(tzinfo=None):
             db_session.query(UserLog).filter_by(idx=log.idx)
 
 def _manage_punishlog(db_session:scoped_session):
     logs = db_session.query(PunishLog).all()
 
     for log in logs:
-        if log.expire_log_at < now():
+        if log.expire_log_at < now().replace(tzinfo=None):
             db_session.query(PunishLog).filter_by(idx=log.idx)
 
 def job(logger:Logger, db_session:scoped_session):

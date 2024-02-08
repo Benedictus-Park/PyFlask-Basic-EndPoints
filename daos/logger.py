@@ -15,9 +15,6 @@ class Logger:
     def user_withdraw(self, u:User):
         self.user_log(u, 2)
 
-    def user_cancel_exp(self, u:User):
-        self.user_log(u, 3)
-
     def user_punish_block(self, u:User):
         self.user_log(u, 4)
 
@@ -39,7 +36,7 @@ class Logger:
 
     def authenticate(self, u:User=None, success:bool=None):
         if u == None:
-            self.user_log(User())
+            self.user_log(User.get_dummy(), 10)
         else:
             self.user_log(u, 9 if success else 10)
 

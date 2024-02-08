@@ -21,14 +21,14 @@ class UserService:
             return Response(status=200)
         
     def authentication_service(self, email:str, password:str) -> Response:
-        u, cancel_exp = self.dao.get_user(email=email, login=True)
+        u = self.dao.get_user(email=email)
 
         if u == None:
-            self.logger.authenticate()
-            return Response(status=401)
+            self.logger.authenticate(u)
+            return Response(status=403)
         elif bcrypt.checkpw(password.encode('utf-8'), u.pwd.encode('utf-8')) == False:
             self.logger.authenticate(u, success=False)
-            return Response(status=401)
+            return Response(status=403)
         else:
             userinfo_dict = {
                 'uid':int(u.uid),
@@ -37,16 +37,21 @@ class UserService:
                 'is_manager':bool(u.is_manager),
             }
 
+            self.dao.cancle_withdraw(u.uid)
+
             rsp = jsonify(userinfo_dict)
             rsp.set_cookie(key='authorization', value=self.token_generator(u))
+            self.logger.authenticate(u, success=True)
 
-            if cancel_exp:
-                self.logger.user_cancel_exp(u)
-            self.logger.authenticate(u, True)
             return rsp
         
     def userinfo_update_service(self, uid:int, username:str=None, cur_password:str=None, new_password:str=None, is_manager:bool=None, force:bool=False) -> Response:    
         cur_userinfo = self.dao.get_user(uid=uid)
+
+        if cur_userinfo == None:
+            return Response(status=400)
+        elif not force and not bcrypt.checkpw(cur_password.encode('utf-8'), cur_userinfo.pwd.encode('utf-8')):
+            return Response("패스워드 틀림.", status=401)
 
         if username != None:
             u = self.dao.get_user(username=username)
@@ -54,11 +59,6 @@ class UserService:
                 rsp = Response("중복 유저명 존재(Confilict)", status=409)
                 rsp.set_cookie(key='authorization', value=self.token_generator(use_g=True))
                 return rsp
-
-        if cur_userinfo == None:
-            return Response(status=400)
-        elif not force and not bcrypt.checkpw(cur_password.encode('utf-8'), cur_userinfo.pwd.encode('utf-8')):
-            return Response("패스워드 틀림.", status=401)
         
         if new_password != None:
             new_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -66,11 +66,11 @@ class UserService:
         u = self.dao.update_user(uid, username, new_password, is_manager)
 
         if u == None:
-            return Response(status=400)
+            return Response(status=500)
         else:
             userinfo_dict = {
                 'uid':int(u.uid),
-                'username':str(u.username),
+                'username':u.username[0],
                 'email':str(u.email),
                 'is_manager':bool(u.is_manager),
             }
@@ -81,7 +81,7 @@ class UserService:
             self.logger.user_updated(u)
             return rsp
     
-    def get_users_metadata_service_for_managing(self, only_manager:bool=False, start:int=None, end:int=None) -> Response:
+    def get_users_metadata_service_for_managing(self, only_manager:bool=False) -> Response:
         count, users = self.dao.get_all_users_for_managing(only_manager)
         data = {
             "count":count,
@@ -98,9 +98,6 @@ class UserService:
                     "created_at":str(u.created_at)
                 })
         else:
-            if start != None and end != None:
-                users = users[start:end]
-
             for u in users:
                 data['list'].append({
                     "uid":int(u.uid),
@@ -109,7 +106,7 @@ class UserService:
                     "is_manager":bool(u.is_manager),
                     "created_at":str(u.created_at),
                     "punished":bool(u.punished),
-                    "blocked_until":str(u.blocked_until)
+                    "block_until":str(u.block_until)
                 })
 
         rsp = jsonify(data)

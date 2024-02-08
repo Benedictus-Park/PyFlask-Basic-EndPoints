@@ -7,7 +7,7 @@ MDTYPES = (
     'USER_CREATED',
     'USER_UPDATED',
     'USER_WITHDRAW',
-    'USER_CANCEL_EXP',
+    'USER_CANCEL_EXP', # Deprecated
     'PUNISH_BLOCK',
     'PUNISH_EXP',
     'PRIV_GRANT',

@@ -21,34 +21,35 @@ class UserDao:
         self.db_session.commit()
         return u
 
-    def get_user(self, uid:int=None, username:str=None, email:str=None, login:bool=False) -> tuple:
-        if username == None and email == None:
+    def get_user(self, uid:int=None, username:str=None, email:str=None) -> User:
+        if username == None and email == None and uid == None:
             raise InvalidateUserQuery()
         elif uid != None:
-            return (self.db_session.query(User).filter_by(uid=uid).one_or_none(), False)
+            return self.db_session.query(User).filter_by(uid=uid).one_or_none()
         elif username != None:
-            return (self.db_session.query(User).filter_by(username=username).one_or_none(), False)
+            return self.db_session.query(User).filter_by(username=username).one_or_none()
         elif email != None: 
-            u = self.db_session.query(User).filter_by(email=email).one_or_none()
+            return self.db_session.query(User).filter_by(email=email).one_or_none()
+        
+    def cancle_withdraw(self, uid:int):
+        u = self.get_user(uid=uid)
 
-            if u != None and login:
-                if u.expire_at != None:
-                    self.db_session.query(User).filter_by(email=email).update({
-                        'expire_at':None
-                    })
-                    self.db_session.commit()
-                    return (u, True)
-            return (u, False)
+        if u != None:
+            if u.expire_at != None and not u.punished:
+                self.db_session.query(User).filter_by(uid=uid).update({
+                    'expire_at':None
+                })
+                self.db_session.commit()
         
     def get_all_users_for_managing(self, only_manager:bool=False) -> tuple:
         users = None
-        
+
         if only_manager:
-            users = self.db_session.query(User.uid, User.username, User.email, User.created_at).filter('is_manager' == True and 'expire_at' == None).all()
+            users = self.db_session.query(User.uid, User.username, User.email, User.created_at).filter_by(is_manager=only_manager).all()
         else:
             users = self.db_session.query(User.uid, User.username, User.email, User.is_manager, User.created_at, User.punished, User.block_until).filter_by(expire_at=None).all()
 
-        return (users.count(), users)
+        return (len(users), users)
         
     def update_user(self, uid:int, username:str=None, pwd:str=None, is_manager:bool=None, punished:bool=None, block_until:int=None, expire_after:int=7) -> User:
         u = self.db_session.query(User).filter_by(uid=uid).one_or_none()
